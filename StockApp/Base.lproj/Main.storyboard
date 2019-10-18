@@ -29,7 +29,7 @@
                             <outlet property="delegate" destination="pec-w3-a4n" id="uKY-K7-2Gc"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Stock Ticker" id="wG7-87-Nzn">
+                    <navigationItem key="navigationItem" title="Stock Ticker" prompt="Swipe for Latest Data" id="wG7-87-Nzn">
                         <barButtonItem key="rightBarButtonItem" systemItem="add" id="QrD-Mz-CwU">
                             <connections>
                                 <action selector="addStock:" destination="pec-w3-a4n" id="Jyo-Q8-Kem"/>

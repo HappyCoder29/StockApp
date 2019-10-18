@@ -91,6 +91,21 @@ class TableViewController: UITableViewController {
         
     }
     
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+           if editingStyle == .delete {
+               let stock = arr[indexPath.row]
+               DeleteStockFromDB(stock: stock)
+               arr.remove(at: indexPath.row)
+               tableView.deleteRows(at: [indexPath], with: .fade)
+           }
+       }
+    
+    func DeleteStockFromDB(stock: Stock){
+        let realm = try! Realm()
+         try! realm.write {
+            realm.delete(stock)
+        }
+    }
     
     
     func LoadValuesFromDB(){
