@@ -17,19 +17,47 @@ class TableViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        LoadValuesFromDB()
         
+//        do{
+//            let realm = try Realm()
+//
+//        }catch{
+//            print("Error in initializing \(error)")
+//        }
+//
+//        print(Realm.Configuration.defaultConfiguration.fileURL)
+//
+    
+    }
+    
+    func LoadValuesFromDB(){
         do{
             let realm = try Realm()
+            let stocks = realm.objects(Stock.self)
+            
+            for stock in stocks{
+                arr.append(stock)
+            }
 
         }catch{
-            print("Error in initialiozing \(error)")
+            print("Error in Loading \(error)")
         }
-        
-        print(Realm.Configuration.defaultConfiguration.fileURL)
-                
-        
-        
+    }
+    
+    
+    
+    
+    func AddStockToDB(stock: Stock){
+        do{
+            let realm = try Realm()
+            try realm.write {
+                realm.add(stock, update: Realm.UpdatePolicy.all)
+            }
 
+        }catch{
+            print("Error in Adding Stock to DB \(error)")
+        }
     }
 
 
