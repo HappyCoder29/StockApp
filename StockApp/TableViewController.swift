@@ -11,9 +11,10 @@ import RealmSwift
 import SwiftyJSON
 import Alamofire
 
-class TableViewController: UITableViewController {
+class TableViewController: UITableViewController, UISearchBarDelegate {
 
     var arr = [Stock]()
+    var search = [Stock]()
     
     var textField = UITextField()
     
@@ -66,6 +67,7 @@ class TableViewController: UITableViewController {
             .responseJSON {
                 response in
                 self.arr.removeAll()
+                self.search.removeAll()
                 if response.result.isSuccess{
                     let stockJSON: JSON = JSON(response.result.value!)
                     print(stockJSON)
@@ -80,6 +82,8 @@ class TableViewController: UITableViewController {
                             self.arr.append(stock)
                             self.AddStockToDB(stock: stock)
                         }
+                        self.search = self.arr
+                        
                     }
                     self.tableView.reloadData()
                     self.refreshControl?.endRefreshing()
@@ -93,12 +97,13 @@ class TableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
            if editingStyle == .delete {
-               let stock = arr[indexPath.row]
-               DeleteStockFromDB(stock: stock)
-               arr.remove(at: indexPath.row)
-               tableView.deleteRows(at: [indexPath], with: .fade)
-           }
-       }
+            let stock = arr[indexPath.row]
+            DeleteStockFromDB(stock: stock)
+            arr.remove(at: indexPath.row)
+            search.remove(at: indexPath.row)
+            tableView.deleteRows(at: [indexPath], with: .fade)
+        }
+    }
     
     func DeleteStockFromDB(stock: Stock){
         let realm = try! Realm()
@@ -116,6 +121,7 @@ class TableViewController: UITableViewController {
             for stock in stocks{
                 arr.append(stock)
             }
+            search = arr
 
         }catch{
             print("Error in Loading \(error)")
@@ -180,6 +186,7 @@ class TableViewController: UITableViewController {
                 stock.price = stockJSON["price"].floatValue
                 stock.companyInfo = ""
                 self.arr.append(stock)
+                self.search = self.arr
                 self.AddStockToDB(stock: stock)
                 self.tableView.reloadData()
                 
@@ -220,6 +227,20 @@ class TableViewController: UITableViewController {
                
                    
         self.present(alert, animated: true, completion: nil)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        
+        guard !searchBar.text!.isEmpty else {
+            arr = search
+            tableView.reloadData()
+            return
+        }
+        
+        arr = search.filter({ (stock) -> Bool in
+            stock.symbol.lowercased().contains(searchText.lowercased())
+        })
+        tableView.reloadData()
     }
     
 
