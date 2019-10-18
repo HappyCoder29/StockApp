@@ -6,7 +6,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--Table View Controller-->
+        <!--Stock Ticker-->
         <scene sceneID="COK-Xq-0uH">
             <objects>
                 <tableViewController id="pec-w3-a4n" customClass="TableViewController" customModule="StockApp" customModuleProvider="target" sceneMemberID="viewController">
@@ -29,7 +29,13 @@
                             <outlet property="delegate" destination="pec-w3-a4n" id="uKY-K7-2Gc"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="wG7-87-Nzn"/>
+                    <navigationItem key="navigationItem" title="Stock Ticker" id="wG7-87-Nzn">
+                        <barButtonItem key="rightBarButtonItem" systemItem="add" id="QrD-Mz-CwU">
+                            <connections>
+                                <action selector="addStock:" destination="pec-w3-a4n" id="Jyo-Q8-Kem"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="kwg-FY-CPI" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>

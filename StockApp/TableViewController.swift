@@ -15,6 +15,8 @@ class TableViewController: UITableViewController {
 
     var arr = [Stock]()
     
+    var textField = UITextField()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         LoadValuesFromDB()
@@ -76,6 +78,73 @@ class TableViewController: UITableViewController {
         cell.lblPrice.text = "\(arr[indexPath.row].price) $"
         
         return cell
+    }
+    
+    func IsStockAdded(symbol: String) -> Bool{
+            let realm = try! Realm()
+            if realm.object(ofType: Stock.self, forPrimaryKey: symbol) != nil{
+                return true
+            }
+           return false
+       }
+    
+    func GetStockValue(symbol: String){
+        
+        let url = "https://financialmodelingprep.com/api/v3/stock/real-time-price/\(symbol)"
+        Alamofire.request(url, method: .get, parameters: nil).responseJSON { (response) in
+            if response.result.isSuccess{
+                let stockJSON: JSON = JSON(response.result.value!)
+                print(stockJSON)
+                let result = stockJSON["symbol"].rawString()
+                if result! == "null" {
+                    return
+                }
+                
+                let stock = Stock()
+                stock.symbol = stockJSON["symbol"].rawString()!
+                stock.price = stockJSON["price"].floatValue
+                stock.companyInfo = ""
+                self.arr.append(stock)
+                self.AddStockToDB(stock: stock)
+                self.tableView.reloadData()
+                
+            
+            }
+            
+        }
+    }
+
+    
+    
+    @IBAction func addStock(_ sender: Any) {
+        
+        let alert = UIAlertController(title: "Add Stock", message: "Type Stock Symbol", preferredStyle: .alert)
+                   
+        let OK = UIAlertAction(title: "OK", style: .default) { (action) in
+            
+            let symbol = self.textField.text!
+            // if stock is already added
+            if(self.IsStockAdded(symbol: symbol)){
+                return
+            }
+            
+            self.GetStockValue(symbol: symbol)
+            
+        }
+                   
+        let Cancel = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+            print("Cancel Pressed")
+        }
+                   
+        alert.addTextField { (addTextField) in
+            addTextField.placeholder = "Stock Symbol"
+            self.textField = addTextField
+        }
+        alert.addAction(Cancel)
+        alert.addAction(OK)
+               
+                   
+        self.present(alert, animated: true, completion: nil)
     }
     
 
