@@ -21,6 +21,10 @@ class TableViewController: UITableViewController {
         super.viewDidLoad()
         LoadValuesFromDB()
         
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action:  #selector(GetStockData), for: .valueChanged)
+        self.refreshControl = refreshControl
+        
 //        do{
 //            let realm = try Realm()
 //
@@ -32,6 +36,62 @@ class TableViewController: UITableViewController {
 //
     
     }
+    
+    func GetURL() -> String{
+        
+        let realm = try! Realm()
+        let stocks = realm.objects(Stock.self)
+        if(stocks.count == 0 ){
+            return ""
+        }
+            
+        var url = "https://financialmodelingprep.com/api/v3/stock/real-time-price/"
+        for stock in stocks{
+            url.append(stock.symbol + ",")
+        }
+        url = String(url.dropLast())
+        return url
+    }
+    
+    
+    @objc func GetStockData(){
+
+        let url = GetURL();
+        if url == "" {
+            return
+        }
+        // check if yoiu have just one stock
+        
+        Alamofire.request(url, method: .get, parameters: nil)
+            .responseJSON {
+                response in
+                self.arr.removeAll()
+                if response.result.isSuccess{
+                    let stockJSON: JSON = JSON(response.result.value!)
+                    print(stockJSON)
+                    if let stocks = stockJSON["companiesPriceList"].array {
+                        for st in stocks {
+                            print(st["symbol"])
+                            let stock = Stock()
+                            stock.symbol =  st["symbol"].rawString()!
+                            stock.price = st["price"].floatValue
+                            stock.companyInfo = ""
+                           // self.UpdateStockValueInDB(symbol: stock.symbol, price: stock.price)
+                            self.arr.append(stock)
+                            self.AddStockToDB(stock: stock)
+                        }
+                    }
+                    self.tableView.reloadData()
+                    self.refreshControl?.endRefreshing()
+                }
+                else{
+                    print(response.result.error ?? "Error in JSON file")
+                }
+        }
+        
+    }
+    
+    
     
     func LoadValuesFromDB(){
         do{
